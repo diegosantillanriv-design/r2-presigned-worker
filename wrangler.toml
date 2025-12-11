@@ -4,5 +4,5 @@ compatibility_date = "2025-01-01"
 
 # Este es el binding hacia tu bucket R2
 [[r2_buckets]]
-binding = "R2_BUCKET"
+binding = "MY_BUCKET"
 bucket_name = "videos-n8n"
