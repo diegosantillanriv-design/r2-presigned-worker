@@ -1,6 +1,6 @@
 name = "r2-presigned-worker"
 main = "src/index.js"
-compatibility_date = "2025-01-01"
+compatibility_date = "2023-12-01"
 
 # Este es el binding hacia tu bucket R2
 [[r2_buckets]]
