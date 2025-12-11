@@ -7,22 +7,27 @@ export default {
       return new Response("file parameter is required", { status: 400 });
     }
 
-    const expiresIn = 60 * 60; // 1 hour
+    const expiresIn = 60 * 60; // 1 hora
 
-    const signed = await env.MY_BUCKET.createPresignedUrl({
-      key: fileName,
-      method: "PUT",
-      expiration: expiresIn,
-      headers: {
-        "Content-Type": "application/octet-stream"
+    // Crear URL prefirmada correctamente
+    const signed = await env.MY_BUCKET.createPresignedUrl(
+      {
+        key: fileName,
+      },
+      {
+        method: "PUT",
+        expiration: expiresIn,
+        headers: {
+          "Content-Type": "application/octet-stream",
+        },
       }
-    });
+    );
 
     return Response.json({
       uploadUrl: signed,
       method: "PUT",
       expiresIn,
-      fileName
+      fileName,
     });
   }
 };
