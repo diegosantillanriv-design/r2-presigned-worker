@@ -7,24 +7,42 @@ export default {
       return new Response("file parameter is required", { status: 400 });
     }
 
-    // Build the Signed URL manually
-    const expiresInSeconds = 3600; // 1 hour
-    const expiration = Math.floor(Date.now() / 1000) + expiresInSeconds;
+    const endpoint = `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
-    const signedUrl = await env.MY_BUCKET.createSignedUrl({
-      key: fileName,
-      method: "PUT",
-      expiration,
-      headers: {
-        "Content-Type": "application/octet-stream"
-      }
-    });
+    const expiresIn = 3600;
+    const expiration = Math.floor(Date.now() / 1000) + expiresIn;
+
+    const canonicalUrl = `${endpoint}/${env.BUCKET_NAME}/${fileName}`;
+
+    const stringToSign = `${canonicalUrl}:${expiration}`;
+    const signature = await sign(stringToSign, env.SECRET_KEY);
+
+    const signedUrl = `${canonicalUrl}?exp=${expiration}&sig=${signature}`;
 
     return Response.json({
       uploadUrl: signedUrl,
       method: "PUT",
-      expiresIn: expiresInSeconds,
+      expiresIn,
       fileName
     });
   }
+};
+
+// HMAC SHA256 signer
+async function sign(message, secret) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(message)
+  );
+
+  return btoa(String.fromCharCode(...new Uint8Array(signature)));
 }
